@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function validateForm() {
+  var message="hata";
+  var buyukharf= "ABCDEFGHIJKLMNOPQRSTUWXYZ";
+  var kucukharf= "abcdefghijklmnopqrstuwxyz";
+  var rakamlar = "0123456789";
+  var noktalamaisaretleri = ".,;:...!?-_/()[]''*-+}{";
+
+  var x = document.querySelector("#name").value;
+  if (x == "") {
+    document.querySelector("#nameH").textContent=message;
+    return false;
+  }
+
+  var e = document.querySelector("#email").value;
+  if(e =="" || (e.search("@")<0) || (e.search(".com")<0) ||(e.search("@")>e.search(".com")))
+  {
+     document.querySelector("#emailH").textContent=message;
+     return false;
+  }
+
+  var b = document.querySelector("#sayisal").value;
+  if((isNaN(b)) || b=="")
+  {
+    document.querySelector("#sayisalH").textContent = message;
+    return false;
+  }
+
+  var d = document.querySelector("#basamakli").value;
+  if((isNaN(d)) || d=="" || d<100000000000 || d>999999999999)
+  {
+    document.querySelector("#basamakliH").textContent=message;
+    return false;
+  }
+
+  var a = document.querySelector("#alfa").value;
+  if((!isNaN(a)) || a=="" || a.length!=1 )
+  {
+    document.querySelector("#alfaH").textContent=message;
+    return false;
+  }
+
+  var c = document.querySelector("#max30").value;
+  if((!isNaN(c)) || c=="" || c.length>30)
+  {
+    document.querySelector("#max30H").textContent=message;
+    return false;
+  }
+
+  var f = document.querySelector("#uckelime").value;
+  var array = f.split(" ");
+  if(f=="" || array.length!=3 || (!isNaN(f)))
+  {
+    document.querySelector("#uckelimeH").textContent=message;
+    return false;
+  }
+
+  var g = document.querySelector("#password").value;
+  var uzunluk =g.length;
+  var i;
+  var buyukharfB=false;
+  var kucukharfB=false;
+  var rakamB=false;
+  var noktalamaB=false;
+
+  for(i=0;i<=uzunluk;i++)
+  {
+     if(g.indexOf(buyukharf.charAt(i))>=0)
+     {
+      buyukharfB=true;
+     }
+     if(g.indexOf(kucukharf.charAt(i))>=0)
+     {
+      kucukharfB=true;
+     }
+     if(g.indexOf(rakamlar.charAt(i))>=0)
+     {
+      rakamB=true;
+     }
+     if(g.indexOf(noktalamaisaretleri.charAt(i))>=0)
+     {
+      noktalamaB=true;
+     }
+     
+  }
+  if(g=="" || (!buyukharfB) || (!kucukharfB) || (!rakamB) || (!noktalamaB) || uzunluk<8) 
+     {
+      document.querySelector("#passwordH").textContent=message;
+      return false;
+     }
+}
+</script>
+</head>
+<body>
+
+<form name="myForm" action="/action_page.php" onsubmit="return validateForm()" method="post">
+  Aşağıdaki hiçbir input boş olmamalı: <br>
+  
+
+  <table style="width:40%">
+  <tr>
+    <td>Boş olmamalı: </td>
+    <td><input type="text" id="name"></td>
+    <td id="nameH" style="color:Red;">
+    </td>
+    
+  </tr>
+  <tr>
+    <td>E-mail (Kurallara uygun email): </td>
+    <td><input type="text" id="email"></td>
+    <td id="emailH" style="color:Red;">
+      
+    </td>
+  </tr>
+  <tr>
+    <td>Sadece sayısal: </td>
+    <td><input type="text" id="sayisal"></td>
+    <td id="sayisalH" style="color:Red;">
+
+    </td>
+  </tr>
+  <tr>
+    <td>Sadece sayısal olan ve 12 basamak uzunluğundaki sayi: </td>
+    <td><input type="text" id="basamakli"></td>
+    <td id="basamakliH" style="color:Red;">
+      
+    </td>
+  </tr>
+  <tr>
+    <td>Sadece harf (a..z veya A..Z): </td>
+    <td><input type="text" id="alfa"></td>
+    <td id="alfaH" style="color:Red;">
+
+    </td>
+  </tr>
+  <tr>
+    <td>Sadece harf ve en fazla 30 uzunlukta olan string: </td>
+    <td><input type="text" id="max30"></td>
+    <td id="max30H" style="color:Red;">
+      
+    </td>
+  </tr>
+  <tr>
+    <td>3 kelimeden oluşan string: </td>
+    <td><input type="text" id="uckelime"></td>
+    <td id="uckelimeH" style="color:Red;">
+      
+    </td>
+  </tr>
+  <tr>
+    <td>En az 1 büyük harf, en az 1 küçük harf, en az bir rakam ve en az 1 noktalama işareti içeren ve en az 8 uzunluğunda olan metin: </td>
+    <td><input type="text" id="password"></td>
+    <td id="passwordH" style="color:Red;"></td>
+  </tr>
+  
+
+</table>
+
+<br>
+  <input type="submit" value="Submit">
+</form>
+
+</body>
+</html>
