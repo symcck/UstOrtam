@@ -1,0 +1,415 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<string.h>
+
+
+int karakter_bul(char kelime[],char karakter,int indis) // Kelimeyi bulursa konumunu bulamazsa -1 dondurur.
+{
+    while(indis<=strlen(kelime))
+    {
+        if(kelime[indis]==karakter)
+            return indis;
+        else
+            indis++;
+    }
+    return -1;                                               // kelimeyi bulamazsa eksi 1 dondurur.
+
+}
+void arasini_sil(char kelime[],int konum1,int konum2)
+{
+    memmove(&kelime[konum1],&kelime[konum2],strlen(kelime)-(konum2-konum1));
+}
+int yorum_bul(char kelime[],int arama_indis)                 // yorum bulunursa konumunu bulunamazsa -1 dondurur.
+{
+    int yorum_konum,konum=0;
+    while(konum<sizeof(kelime))
+    {
+        konum = karakter_bul(kelime,'/',arama_indis);       // Arama indis : Aramaya verilen konumdan baslanir.
+        if(konum==-1)
+            return -1 ;                                      // bulunamadi.
+        if( kelime[konum+1]=='*' )                           //  '/' karekterinin arkasindan '*' gelene kadar bakiyor
+        {
+            yorum_konum=konum;
+            return yorum_konum;
+        }
+        else
+            konum=karakter_bul(kelime,'/',konum+1);
+    }
+    return -1 ;
+}
+int ters_yorum_bul(char kelime [],int arama_indis)
+{
+    int yorum_konum,konum=0;
+    while(konum<sizeof(kelime))
+    {
+        konum = karakter_bul(kelime,'*',arama_indis);
+        if(konum==-1)
+            return -1 ;                                    // bulunamadi.
+        if( kelime[konum+1]=='/' )                        //  '*' karekterinin arkasindan '/' gelene kadar bakiyor
+        {
+            yorum_konum=konum;
+            return yorum_konum;
+        }
+        else
+            konum=karakter_bul(kelime,'*',konum+1);
+    }
+}
+int yorum_sil(char kelime[],int baslangic_indisi)   // O yorum bulunamadi , -1 hata ,1 ise yorum silindiginde doner.
+{
+    int yorum_bas,yorum_son;
+    yorum_bas=yorum_bul(kelime,baslangic_indisi);
+    if(yorum_bas!=-1)
+    {
+          yorum_son=ters_yorum_bul(kelime,yorum_bas);
+          if(yorum_son!=-1)
+          {
+              arasini_sil(kelime,yorum_bas,yorum_son+2); // konum basini gosteriyor /* iki karekter o yuzden 2 ekliyoruz.
+              return 1;
+          }
+          else
+            return -1 ;
+    }
+    else
+        return 0;
+}
+void butun_yorumlari_sil(char kelime[])
+{
+    int sonuc,i;
+    i=0;
+    sonuc = yorum_sil(kelime,0);
+    if(sonuc==0)
+        printf("yorum bulunamadi");
+    while( (sonuc!=0) && (sonuc!=-1) )
+    {
+        sonuc = yorum_sil(kelime,0);
+        if(sonuc==-1)
+            printf("hata!!!!!!!!");
+
+    }
+
+}
+int keyword_mu(char kelime[])
+{
+    if( (strcmp(kelime,"break"))==0  || (strcmp(kelime,"case"))==0 || (strcmp(kelime,"char"))==0 || (strcmp(kelime,"const"))==0 || (strcmp(kelime,"continue"))==0 || (strcmp(kelime,"do"))==0 || (strcmp(kelime,"else"))==0 ||
+       (strcmp(kelime,"enum"))==0 || (strcmp(kelime,"float"))==0 || (strcmp(kelime,"for"))==0 || (strcmp(kelime,"goto"))==0 || (strcmp(kelime,"if"))==0 || (strcmp(kelime,"int"))==0
+       || (strcmp(kelime,"long"))==0 || (strcmp(kelime,"record"))==0 || (strcmp(kelime,"return"))==0 ||(strcmp(kelime,"static"))==0 || (strcmp(kelime,"while"))==0 )
+       {
+          return 1;
+       }
+
+    else
+    {
+        return 0;
+    }
+
+}
+int bracket_mi(char kelime)
+{
+
+    if( kelime=='{' || kelime=='}' || kelime == '[' , kelime == ']')
+        return 1 ;
+    else
+        return 0;
+}
+int operator_mu(char kelime)
+{
+    if( kelime=='+' || kelime=='-' ||  kelime=='*' ||  kelime=='/'  || kelime==':' )
+        return 1;
+    else
+        return 0;
+}
+void harf_ekle(char* s, char c)
+{
+        int boyut = strlen(s);
+        s[boyut] = c;
+        s[boyut+1] = '\0';
+}
+
+void dosyaya_yaz(char yazilacak[])
+{
+  FILE *yaz   =fopen("code.lex.txt","a");
+  if(yaz!=NULL)
+  {
+      fputs(yazilacak,yaz);
+      fclose(yaz);
+  }
+}
+void dosya_harf_yaz(char harf)
+{
+  FILE *yaz   =fopen("code.lex.txt","a");
+  if(yaz!=NULL)
+  {
+      fputc(harf,yaz);
+      fclose(yaz);
+  }
+}
+void dosya_alt_satir()
+{
+   FILE *yaz   =fopen("code.lex.txt","a");
+   if(yaz!=NULL)
+   {
+       fputs("\n",yaz);
+       fclose(yaz);
+   }
+}
+void dosya_parantezli_yaz(char yazilacak[])
+{
+   FILE *yaz   =fopen("code.lex.txt","a");
+   if(yaz!=NULL)
+   {
+       fputs("(",yaz);
+       fputs(yazilacak,yaz);
+       fputs(")",yaz);
+       fclose(yaz);
+   }
+}
+void dosyayi_bosalt()
+{
+    fclose(fopen("code.lex.txt", "w"));
+}
+char* deblank(char* input)          // bosluklari kaldirir.
+{
+    int i,j;
+    char *output=input;
+    for (i = 0, j = 0; i<strlen(input); i++,j++)
+    {
+        if (input[i]!=' ')
+            output[j]=input[i];
+        else
+            j--;
+    }
+    output[j]=0;
+    return output;
+}
+void remove_new_line(char* string)  // butun satirlari tek satirda birlestirir.
+{
+  size_t length;
+  if( (length =strlen(string) ) >0)
+  {
+       if(string[length-1] == '\n')
+                string[length-1] ='\0';
+  }
+}
+int harf_icinde_mi(char kelime[],char harf)  // aranan harf kelimenin icinde mi diye bakar.
+{
+    for(int x =0 ;x<10;x++)
+    {
+        if(harf==kelime[x])
+            return 1;
+    }
+    return 0;
+}
+int eleman_icinde_mi(int dizi[],int eleman)
+{
+    for(int x=0;x<sizeof(dizi);x++)
+    {
+        if(eleman==dizi[x])
+        {
+          return 1;
+      }
+    }
+    return 0;
+}
+
+
+int main()
+{                                   // !!! Dikkat code.lex de string tanýmlamalari char[] x := seklinde alinmistir.
+    char degiskenler[128][30];
+    char sayilar[10] ="0123456789";
+    FILE *dosya =fopen("code.psi.txt","r");
+    int degisken_syc = 0;
+    char line[128];
+    char hepsi[4096];
+    char gecici[128];
+    char identifier[128];
+    int sonuc,a ;
+    int yorum_konum,x;
+    int tutucu;
+    int endofLine[200];
+    int lineSayac=0;
+    if( dosya== NULL )
+    {
+        perror("Dosya bulunamadi");
+        exit(1);
+    }
+    endofLine[0]='\0';
+    hepsi[0]='\0';
+    while(fgets(line,sizeof(line),dosya)) // Dosyadan okunan satirlar line a atilir.Line lar hepsi icine atilir.
+    {
+        butun_yorumlari_sil(line);
+        endofLine[lineSayac]=strlen(line);
+        printf("%d\n",strlen(line));
+        lineSayac++;
+        printf("line :%d\n",strlen(line));
+        remove_new_line(line);
+        strcat(hepsi,line);
+    }
+
+    deblank(hepsi);
+    dosyayi_bosalt();
+    int i,size;
+    i=0;
+    size=0;
+    gecici[0]='\0';
+    while(hepsi[i]!='\0')
+    {
+        if(eleman_icinde_mi(endofLine,i))
+        {
+            dosya_parantezli_yaz("ENDOFLINE");
+            dosya_alt_satir();
+        }
+        harf_ekle(gecici,hepsi[i]);
+
+        for(int y=0;y<degisken_syc;y++)
+        {
+            sonuc =strcmp(degiskenler[y],gecici);
+            if(sonuc==0)
+                break;
+        }
+        if(sonuc ==0)
+        {
+            dosya_parantezli_yaz("Identifier");
+            dosyaya_yaz(gecici);
+            dosya_alt_satir();
+            gecici[0]='\0';
+            degisken_syc++;
+        }
+        if(keyword_mu(gecici))
+        {
+
+            dosya_parantezli_yaz("keyword");
+            dosyaya_yaz(gecici);
+            dosya_alt_satir();
+
+            if(strcmp(gecici,"int")==0 || strcmp(gecici,"float")==0 || strcmp(gecici,"long")==0 )  // eger degisken tanimi yapiliyorsa degisken degisken dizisine atilir.Keyword ve identifier yazilir.
+            {
+                gecici[0]='\0';
+                int k=1;
+                while(hepsi[i+k]!=';')
+                {
+                    harf_ekle(gecici,hepsi[i+k]);
+                    k++;
+                }
+
+                strcpy(degiskenler[degisken_syc],gecici);
+                degisken_syc++;
+                dosya_parantezli_yaz("identifier");
+                dosyaya_yaz(gecici);
+                dosya_alt_satir();
+                i+=k;
+            }
+            else if(strcmp(gecici,"char")==0)
+            {
+                if((hepsi[i+1]=='[') && (hepsi[i+2]==']'))
+                {
+                    gecici[0]='\0';
+                    i++;
+                    harf_ekle(gecici,hepsi[i]);
+                    dosya_parantezli_yaz("bracket");
+                    dosyaya_yaz(gecici);
+                    dosya_alt_satir();
+                    i++;
+                    gecici[0]='\0';
+                    harf_ekle(gecici,hepsi[i]);
+                    dosya_parantezli_yaz("bracket");
+                    dosyaya_yaz(gecici);
+                    dosya_alt_satir();
+                    gecici[0]='\0';
+                    int k=1;
+                    while(hepsi[i+k]!=':')
+                    {
+                    harf_ekle(gecici,hepsi[i+k]);
+                    k++;
+                    }
+                    strcpy(degiskenler[degisken_syc],gecici);
+                    degisken_syc++;
+                    dosya_parantezli_yaz("identifier");
+                    dosyaya_yaz(gecici);
+                    dosya_alt_satir();
+                    i+=k;
+                }
+                else if((gecici[i+1]=='[') && (gecici[i+2]!=']'))
+                {
+                    printf("hata");
+                    exit(1);
+                }
+            }
+            gecici[0]='\0';
+        }
+        else if(bracket_mi(hepsi[i]))
+        {
+            dosya_parantezli_yaz("bracket");
+            dosya_harf_yaz(hepsi[i]);
+            dosya_alt_satir();
+            memset(gecici,0,sizeof(gecici));
+
+        }
+        else if (operator_mu(hepsi[i]))
+        {
+            dosya_parantezli_yaz("operator");
+
+            if((hepsi[i]=='+' )&& (hepsi[i+1]='+'))
+            {
+                harf_ekle(gecici,hepsi[i+1]);
+                dosya_harf_yaz(hepsi[i]);
+                i++;
+
+            }
+            if((hepsi[i]=='-') && (hepsi[i+1]='-' ))
+            {
+                harf_ekle(gecici,hepsi[i+1]);
+                dosya_harf_yaz(hepsi[i]);
+                i++;
+
+            }
+            if((hepsi[i]==':') && (hepsi[i+1]='='))
+            {
+                harf_ekle(gecici,hepsi[i+1]);
+                dosya_harf_yaz(hepsi[i]);
+                i++;
+            }
+
+            dosya_harf_yaz(hepsi[i]);
+            dosya_alt_satir();
+            memset(gecici,0,sizeof(gecici));
+
+        }
+         else if(harf_icinde_mi(sayilar,hepsi[i]))
+        {
+            gecici[0]='\0';
+            while(harf_icinde_mi(sayilar,hepsi[i]))
+            {
+                harf_ekle(gecici,hepsi[i]);
+                i++;
+
+            }
+            dosya_parantezli_yaz("IntCOnstant");
+            dosyaya_yaz(gecici);
+            dosya_alt_satir();
+            gecici[0]='\0';
+
+        }else if (hepsi[i]=='"')
+        {
+            i++;
+          while(hepsi[i]!=';')
+            {
+                harf_ekle(gecici,hepsi[i]);
+                if(i>sizeof(hepsi))
+                {
+                    perror("string hatasi");
+                    exit(1);
+                }
+                i++;
+            }
+            dosya_parantezli_yaz("string constant");
+            dosyaya_yaz(gecici);
+            dosya_alt_satir();
+            gecici[0]='\0';
+        }
+
+        i++;
+
+    }
+
+    return 0;
+}
